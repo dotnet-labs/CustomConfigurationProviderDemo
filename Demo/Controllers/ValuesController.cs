@@ -1,33 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+﻿namespace Demo.Controllers;
 
-namespace Demo.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class ValuesController(IConfiguration configuration) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ValuesController : ControllerBase
+    private readonly Dictionary<string, string> _configs = Keys.ToDictionary(k => k, k => configuration[k] ?? string.Empty);
+    private static readonly IEnumerable<string> Keys = new List<string> { "MyKey1", "MyKey2" };
+
+    [HttpGet("")]
+    public IEnumerable<string> Get()
     {
-        private readonly Dictionary<string, string> _configs;
-        private static readonly IEnumerable<string> Keys = new List<string> { "MyKey1", "MyKey2" };
+        return _configs.Values;
+    }
 
-        public ValuesController(IConfiguration configuration)
-        {
-            _configs = Keys.ToDictionary(k => k, k => configuration[k] ?? string.Empty);
-        }
-
-        [HttpGet("")]
-        public IEnumerable<string> Get()
-        {
-            return _configs.Values;
-        }
-
-        [HttpGet("{key}")]
-        public string GetValueByKey(string key)
-        {
-            _configs.TryGetValue(key, out var value);
-            return value;
-        }
+    [HttpGet("{key}")]
+    public string GetValueByKey(string key)
+    {
+        _configs.TryGetValue(key, out var value);
+        return value ?? string.Empty;
     }
 }

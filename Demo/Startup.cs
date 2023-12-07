@@ -1,45 +1,31 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+namespace Demo;
 
-namespace Demo
+public class Startup(IConfiguration configuration)
 {
-    public class Startup
+    public void ConfigureServices(IServiceCollection services)
     {
-        public Startup(IConfiguration configuration)
+        if (configuration["MyKey1"] == "MyValue1")
         {
-            Configuration = configuration;
+            // Do something
         }
 
-        public IConfiguration Configuration { get; }
+        services.AddControllers();
+    }
 
-        public void ConfigureServices(IServiceCollection services)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
         {
-            if (Configuration["MyKey1"] == "MyValue1")
-            {
-                // Do something
-            }
-
-            services.AddControllers();
+            app.UseDeveloperExceptionPage();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+            endpoints.MapControllers();
+        });
     }
 }

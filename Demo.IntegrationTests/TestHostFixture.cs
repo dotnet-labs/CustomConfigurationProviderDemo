@@ -1,28 +1,26 @@
-﻿using System;
-using System.Net.Http;
-using Microsoft.AspNetCore.TestHost;
+﻿using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 
-namespace Demo.IntegrationTests
+namespace Demo.IntegrationTests;
+
+public class TestHostFixture : IDisposable
 {
-    public class TestHostFixture : IDisposable
+    public HttpClient Client { get; }
+    public IServiceProvider ServiceProvider { get; }
+
+    public TestHostFixture()
     {
-        public HttpClient Client { get; }
-        public IServiceProvider ServiceProvider { get; }
+        var builder = Program.CreateHostBuilder([])
+            .ConfigureWebHost(webHost => webHost.UseTestServer());
+        var host = builder.Start();
+        ServiceProvider = host.Services;
+        Client = host.GetTestClient();
+        Console.WriteLine("TEST Host Started.");
+    }
 
-        public TestHostFixture()
-        {
-            var builder = Program.CreateHostBuilder(null)
-                .ConfigureWebHost(webHost => webHost.UseTestServer());
-            var host = builder.Start();
-            ServiceProvider = host.Services;
-            Client = host.GetTestClient();
-            Console.WriteLine("TEST Host Started.");
-        }
-
-        public void Dispose()
-        {
-            Client.Dispose();
-        }
+    public void Dispose()
+    {
+        Client.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
